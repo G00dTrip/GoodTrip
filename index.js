@@ -17,12 +17,11 @@ app.get("/search", async (req, res) => {
     `https://maps.googleapis.com/maps/api/geocode/json?address=${req.query.address}&key=AIzaSyC40aX2jU-IpxXf7lDw__e6F3Z4_8KAOiE`
   );
 
-  // console.log("response=", response.data.results[0].geometry.location);
-  const test = 3;
+  console.log("response=", response.data.results[0].geometry.location);
   const lat = response.data.results[0].geometry.location.lat;
-  // console.log("lat=", lat);
+  console.log("lat=", lat);
   const long = response.data.results[0].geometry.location.lng;
-  // console.log("long=", long);
+  console.log("long=", long);
 
   const response2 = await axios.post(
     "https://places.googleapis.com/v1/places:searchNearby?key=AIzaSyC40aX2jU-IpxXf7lDw__e6F3Z4_8KAOiE",
@@ -49,7 +48,7 @@ app.get("/search", async (req, res) => {
       },
     }
   );
-  // console.log("response2=", response.data);
+  console.log("response2=", response.data);
   res.status(200).json(response2.data);
 });
 
