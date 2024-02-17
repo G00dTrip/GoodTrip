@@ -18,7 +18,7 @@ app.get("/search", async (req, res) => {
   );
 
   // console.log("response=", response.data.results[0].geometry.location);
-
+  const test = 0;
   const lat = response.data.results[0].geometry.location.lat;
   // console.log("lat=", lat);
   const long = response.data.results[0].geometry.location.lng;
