@@ -19,7 +19,6 @@ app.get("/search", async (req, res) => {
   );
 
   console.log("response=", response.data.results[0].geometry.location);
-
   const lat = response.data.results[0].geometry.location.lat;
   console.log("lat=", lat);
   const long = response.data.results[0].geometry.location.lng;
@@ -50,7 +49,7 @@ app.get("/search", async (req, res) => {
       },
     }
   );
-  // console.log("response2=", response.data);
+  console.log("response2=", response.data);
   res.status(200).json(response2.data);
 });
 
