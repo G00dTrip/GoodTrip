@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const axios = require("axios");
@@ -14,7 +15,7 @@ app.get("/search", async (req, res) => {
   console.log("search longitude/latitude");
 
   const response = await axios.get(
-    `https://maps.googleapis.com/maps/api/geocode/json?address=${req.query.address}&key=AIzaSyC40aX2jU-IpxXf7lDw__e6F3Z4_8KAOiE`
+    `https://maps.googleapis.com/maps/api/geocode/json?address=${req.query.address}&key=${process.env.GOOGLE_API_KEY}`
   );
 
   console.log("response=", response.data.results[0].geometry.location);
@@ -25,7 +26,7 @@ app.get("/search", async (req, res) => {
   console.log("long=", long);
 
   const response2 = await axios.post(
-    "https://places.googleapis.com/v1/places:searchNearby?key=AIzaSyC40aX2jU-IpxXf7lDw__e6F3Z4_8KAOiE",
+    `https://places.googleapis.com/v1/places:searchNearby?key=${process.env.GOOGLE_API_KEY}`,
     {
       includedTypes: ["restaurant"],
       maxResultCount: 20,
