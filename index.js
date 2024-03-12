@@ -3,8 +3,7 @@ const express = require("express");
 const app = express();
 const axios = require("axios");
 const cors = require("cors");
-//COMMENTAIRE POUR ESSAI
-//LIGNE A RAJOUTER AU MAIN
+
 app.use(cors());
 app.use(express.json());
 
@@ -13,23 +12,16 @@ app.get("/", () => {
 });
 
 app.get("/search", async (req, res) => {
-  // console.log("search longitude/latitude");
-  // console.log(req.query.address);
-
   const response = await axios.get(
     `https://maps.googleapis.com/maps/api/geocode/json?address=${req.query.address}&key=${process.env.GOOGLE_API_KEY}`
   );
-  // console.log(response.data);
-  // console.log("response=", response.data.results[0].geometry.location);
   const lat = response.data.results[0].geometry.location.lat;
-  // console.log("lat=", lat);
   const long = response.data.results[0].geometry.location.lng;
-  // console.log("long=", long);
 
   const response2 = await axios.post(
     `https://places.googleapis.com/v1/places:searchText?key=${process.env.GOOGLE_API_KEY}`,
     {
-      textQuery: "event_venue",
+      textQuery: "eglise ancienne",
       // includedType: "visitor_center",
       strictTypeFiltering: true,
       locationBias: {
@@ -53,14 +45,22 @@ app.get("/search", async (req, res) => {
           "places.regularOpeningHours.weekdayDescriptions",
           "places.primaryType",
           "places.shortFormattedAddress",
+          "places.photos",
         ],
       },
     }
   );
-  // console.log("response2=", response.data);
-  res
-    .status(200)
-    .json({ count: response2.data.places.length, data: response2.data });
+
+  // const photo = await axios.get(
+  //   `https://places.googleapis.com/v1/places/ChIJc8ANzMWzqxIRR3S9Qn7TQyc/photos/ATplDJbsR2yIuFnbB4_x46PolpSEnIXgMNeUfqwAN9yyxORIFW_IdmwxVaijLL64VUwtslhHMGHPU4hkdH0-TttJiq2vdfZ73nWKpifflgCUHcDYZeCo2Sc6qVn9Gs0TzVay_XoEp-cMOViAPHj-cr5Gq4RISPnUrCBgPJkk/media
+  //   ?key=${process.env.GOOGLE_API_KEY}&maxHeightPx=1000&maxWidthPx=1000&skipHttpRedirect=true`
+  // );
+
+  res.status(200).json({
+    count: response2.data.places.length,
+    data: response2.data,
+    // photo: photo,
+  });
 });
 
 app.listen(3000, () => {
