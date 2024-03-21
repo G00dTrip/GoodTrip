@@ -2,11 +2,16 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const axios = require("axios");
+const { connect, default: mongoose } = require("mongoose");
 const cors = require("cors");
 //COMMENTAIRE POUR ESSAI
 //LIGNE A RAJOUTER AU MAIN
 app.use(cors());
 app.use(express.json());
+mongoose.connect(process.env.MONGODB_URL + "GoodTrip");
+
+const travellerRoutes = require("./routes/traveller");
+app.use(travellerRoutes);
 
 app.get("/", () => {
   console.log("coucou");
@@ -29,17 +34,17 @@ app.get("/search", async (req, res) => {
   const response2 = await axios.post(
     `https://places.googleapis.com/v1/places:searchText?key=${process.env.GOOGLE_API_KEY}`,
     {
-      textQuery: "randonnée",
+      textQuery: "salon de beauté proche Sarcelles",
       strictTypeFiltering: true,
-      locationBias: {
-        circle: {
-          center: {
-            latitude: lat,
-            longitude: long,
-          },
-          radius: 5000.0,
-        },
-      },
+      // locationBias: {
+      //   circle: {
+      //     center: {
+      //       latitude: lat,
+      //       longitude: long,
+      //     },
+      //     radius: 5000.0,
+      //   },
+      // },
       minRating: 4,
     },
     {
