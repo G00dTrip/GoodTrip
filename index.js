@@ -2,16 +2,24 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const axios = require("axios");
+const { connect, default: mongoose } = require("mongoose");
 const cors = require("cors");
 
 app.use(cors());
 app.use(express.json());
+mongoose.connect(process.env.MONGODB_URL + "GoodTrip");
+
+const travellerRoutes = require("./routes/traveller");
+app.use(travellerRoutes);
 
 app.get("/", () => {
   console.log("coucou");
 });
 
 app.get("/search", async (req, res) => {
+  console.log("search longitude/latitude");
+  console.log(req.query.address);
+
   const response = await axios.get(
     `https://maps.googleapis.com/maps/api/geocode/json?address=${req.query.address}&key=${process.env.GOOGLE_API_KEY}`
   );
