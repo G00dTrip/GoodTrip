@@ -18,17 +18,21 @@ app.get("/search", async (req, res) => {
   const lat = response.data.results[0].geometry.location.lat;
   const long = response.data.results[0].geometry.location.lng;
 
+  console.log("lat & long=", lat, long);
+
   const response2 = await axios.post(
     `https://places.googleapis.com/v1/places:searchText?key=${process.env.GOOGLE_API_KEY}`,
     {
       textQuery: "restaurant",
       // includedType: "visitor_center",
-      strictTypeFiltering: true,
+      // strictTypeFiltering: true,
       locationBias: {
         circle: {
           center: {
-            latitude: lat,
-            longitude: long,
+            latitude: lat - 0.01,
+            longitude: long - 0.01,
+            // latitude: lat,
+            // longitude: long,
           },
           radius: 5000,
         },
@@ -62,12 +66,14 @@ app.get("/search", async (req, res) => {
     {
       textQuery: "restaurant",
       // includedType: "visitor_center",
-      strictTypeFiltering: true,
+      // strictTypeFiltering: true,
       locationBias: {
         circle: {
           center: {
-            latitude: lat,
-            longitude: long,
+            latitude: lat + 0.01,
+            longitude: long + 0.01,
+            // latitude: lat,
+            // longitude: long,
           },
           radius: 5000,
         },
@@ -96,7 +102,7 @@ app.get("/search", async (req, res) => {
     {
       textQuery: "restaurant",
       // includedType: "visitor_center",
-      strictTypeFiltering: true,
+      // strictTypeFiltering: true,
       locationBias: {
         circle: {
           center: {
