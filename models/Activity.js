@@ -7,6 +7,9 @@ const Activity = mongoose.model("Activity", {
   price: Number,
   website: String,
   opening_hours: Array,
-  picture: Object,
+  picture: String,
+  rate: Number,
+  address: String,
+  google_id: String,
 });
 module.exports = Activity;

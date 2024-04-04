@@ -9,17 +9,13 @@ const Travel = mongoose.model("Travel", {
   type: String,
   place: String,
   isShared: Boolean,
+  categories: Array,
   activities: [
     {
-      title: String,
-      category: String,
-      city: String,
-      price: Number,
-      rate: Number,
-      address: String,
-      website: String,
-      opening_hours: Array,
-      picture: Object,
+      activity: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Traveller",
+      },
       status: String,
       schedule_day: Date,
       schedule_duration: Number,

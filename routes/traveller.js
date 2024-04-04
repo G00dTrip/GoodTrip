@@ -7,10 +7,16 @@ const SHA256 = require("crypto-js/sha256");
 
 const Traveller = require("../models/Traveller");
 
+// // 1. Créer un nouveau voyageur (/signup)
+// // 2. Se connecter (/signin)
+
 // 1. Créer un nouveau voyageur
 router.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json("Tous les éléments sont obligatoires.");
+    }
     if (password.length < 8) {
       return res
         .status(400)
@@ -33,11 +39,34 @@ router.post("/signup", async (req, res) => {
       salt,
       hash: SHA256(password + salt).toString(encBase64),
     });
+    await newTraveller.save();
     return res.status(200).json(` Nouveau voyageur créé: ${newTraveller}`);
   } catch (error) {
-    res.status(400).json(error);
+    return res.status(400).json(error);
   }
   res.status(200).json({ message: "infos bien reçues" });
+});
+
+// 2. Se connecter
+router.post("/signin", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json("Tous les éléments sont obligatoires.");
+    }
+    const travellerFound = await Traveller.findOne({ email });
+    if (!travellerFound) {
+      return res.status(400).json(`Adresse email incorrecte.`);
+    }
+    if (
+      SHA256(password + travellerFound.salt).toString(encBase64) ===
+      travellerFound.hash
+    ) {
+      return res.status(200).json(travellerFound);
+    }
+  } catch (error) {
+    return res.status(400).json(error);
+  }
 });
 
 module.exports = router;

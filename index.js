@@ -12,6 +12,12 @@ mongoose.connect(process.env.MONGODB_URL + "GoodTrip");
 const travellerRoutes = require("./routes/traveller");
 app.use(travellerRoutes);
 
+const travelRoutes = require("./routes/travel");
+app.use(travelRoutes);
+
+const activityRoutes = require("./routes/activity");
+app.use(activityRoutes);
+
 app.get("/", () => {
   console.log("coucou");
 });
