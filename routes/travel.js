@@ -10,6 +10,7 @@ const Traveller = require("../models/Traveller");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
 // // 1. Créer un nouveau voyage (/create)
+// // 2. Récupérer tous les voyages (/travels)
 
 // 1. Créer un nouveau voyage (/create)
 router.post("/create", isAuthenticated, async (req, res) => {
@@ -62,6 +63,19 @@ router.post("/create", isAuthenticated, async (req, res) => {
     // Renvoyer au voyageur les informations de son voyage + les activités à sélectionner
     const response = { travel: newTravel, activities };
     return res.status(200).json(response);
+  } catch (error) {
+    return res.status(400).json(error);
+  }
+});
+
+// 2. Récupérer tous les voyages (/travels)
+router.get("/travels", async (req, res) => {
+  try {
+    const travels = await Travel.find().populate([
+      { path: `activities.activity` },
+      { path: `travellers`, select: [`username`, `email`] },
+    ]);
+    return res.status(200).json(travels);
   } catch (error) {
     return res.status(400).json(error);
   }
