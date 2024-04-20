@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
 
 const uid2 = require("uid2");
 const encBase64 = require("crypto-js/enc-base64");
@@ -13,6 +14,7 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 
 // 1. Créer un nouveau voyage (/create)
 router.post("/create", isAuthenticated, async (req, res) => {
+  console.log("Création en cours");
   try {
     const travellerFound = req.travellerFound;
     const { name, date_start, date_end, type, place, isShared, categories } =
@@ -31,7 +33,32 @@ router.post("/create", isAuthenticated, async (req, res) => {
       }
     }
     // Intégrer requête API Google dans une boucle pour chaque élément de categories -> renvoyer les activités à proposer aux voyageurs
-    const activities = [];
+    let activities = [];
+
+    //on stocke les promises et on utilise ensuite Promise.all pour attendre qu'elles soient résolues avant de continuer le code. !!! un await ne fonctionne pas sur un map !!!
+
+    const activitiesPromises = categories.map(async (category) => {
+      const newActivities = await axios.post(
+        `https://places.googleapis.com/v1/places:searchText?key=${process.env.GOOGLE_API_KEY}`,
+        { textQuery: `${category} ${place}`, minRating: 4 },
+        {
+          headers: {
+            "X-Goog-FieldMask":
+              "places.id,places.displayName,places.primaryType,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours,places.websiteUri",
+          },
+        }
+      );
+      return newActivities.data.places;
+    });
+
+    try {
+      const results = await Promise.all(activitiesPromises);
+      results.forEach((result) => {
+        activities = [...activities, ...result];
+      });
+    } catch (error) {
+      console.log("Erreur lors de la récupération des activités:", error);
+    }
 
     // Créer le voyage
     const newTravel = new Travel({
@@ -46,6 +73,7 @@ router.post("/create", isAuthenticated, async (req, res) => {
       travellers,
     });
     await newTravel.save();
+    console.log("voyage créé");
     // Mettre à jour les voyageurs en intégrant le voyage à leur liste de voyages
     for (let t = 0; t < travellers.length; t++) {
       const traveller = await Traveller.findById(travellers[t]);
@@ -63,6 +91,7 @@ router.post("/create", isAuthenticated, async (req, res) => {
     const response = { travel: newTravel, activities };
     return res.status(200).json(response);
   } catch (error) {
+    console.log("error=", error);
     return res.status(400).json(error);
   }
 });
