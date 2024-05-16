@@ -11,6 +11,7 @@ const Traveller = require("../models/Traveller");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
 // // 1. Créer un nouveau voyage (/create)
+// // 2. Récupérer tous les voyages (/travels)
 
 // 1. Créer un nouveau voyage (/create)
 router.post("/create", isAuthenticated, async (req, res) => {
@@ -34,11 +35,17 @@ router.post("/create", isAuthenticated, async (req, res) => {
     }
     // Intégrer requête API Google dans une boucle pour chaque élément de categories -> renvoyer les activités à proposer aux voyageurs
     let activities = [];
+<<<<<<< HEAD
 
     //on stocke les promises et on utilise ensuite Promise.all pour attendre qu'elles soient résolues avant de continuer le code. !!! un await ne fonctionne pas sur un map !!!
 
     const activitiesPromises = categories.map(async (category) => {
       const newActivities = await axios.post(
+=======
+    const activitiesPromises = categories.map(async (category) => {
+      const newActivities = await axios.post(
+        // ajouter zipcode en textquery!!!
+>>>>>>> origin/sophie
         `https://places.googleapis.com/v1/places:searchText?key=${process.env.GOOGLE_API_KEY}`,
         { textQuery: `${category} ${place}`, minRating: 4 },
         {
@@ -54,6 +61,10 @@ router.post("/create", isAuthenticated, async (req, res) => {
     try {
       const results = await Promise.all(activitiesPromises);
       results.forEach((result) => {
+<<<<<<< HEAD
+=======
+        // vérifier que l'activité n'est pas déjà dans les results en recherchant son google_id (avec un reduce ?) !!!
+>>>>>>> origin/sophie
         activities = [...activities, ...result];
       });
     } catch (error) {
@@ -96,6 +107,7 @@ router.post("/create", isAuthenticated, async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 //Renvoyer les informations d'un voyage
 router.get("/travel/:travelId", isAuthenticated, async (req, res) => {
   const { travelId } = req.params;
@@ -104,6 +116,18 @@ router.get("/travel/:travelId", isAuthenticated, async (req, res) => {
     return res.status(200).json(travel);
   } catch (error) {
     console.log("Erreur lors de la récupération du voyage", error);
+=======
+// 2. Récupérer tous les voyages (/travels)
+router.get("/travels", async (req, res) => {
+  try {
+    const travels = await Travel.find().populate([
+      { path: `activities.activity` },
+      { path: `travellers`, select: [`username`, `email`] },
+    ]);
+    return res.status(200).json(travels);
+  } catch (error) {
+    return res.status(400).json(error);
+>>>>>>> origin/sophie
   }
 });
 
