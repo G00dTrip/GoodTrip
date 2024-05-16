@@ -96,4 +96,15 @@ router.post("/create", isAuthenticated, async (req, res) => {
   }
 });
 
+//Renvoyer les informations d'un voyage
+router.get("/travel/:travelId", isAuthenticated, async (req, res) => {
+  const { travelId } = req.params;
+  try {
+    const travel = await Travel.findById(travelId);
+    return res.status(200).json(travel);
+  } catch (error) {
+    console.log("Erreur lors de la récupération du voyage", error);
+  }
+});
+
 module.exports = router;

@@ -62,6 +62,7 @@ router.post("/select", isAuthenticated, async (req, res) => {
     );
     return res.status(200).json(travelUpdated);
   } catch (error) {
+    console.log(error);
     return res.status(400).json(error);
   }
 });
@@ -87,6 +88,19 @@ router.post("/schedule", isAuthenticated, async (req, res) => {
     return res.status(200).json(travelUpdated);
   } catch (error) {
     return res.status(400).json(error);
+  }
+});
+
+//Renvoyer les informations d'une activité
+router.get("/activity/:activityId", isAuthenticated, async (req, res) => {
+  const { activityId } = req.params;
+  // console.log("activityId=", activityId);
+  try {
+    const activity = await Activity.findById(activityId);
+    // console.log("activity=", activity);
+    return res.status(200).json(activity);
+  } catch (error) {
+    console.log("Erreur lors de la récupération de l'activité", error);
   }
 });
 
