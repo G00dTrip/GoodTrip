@@ -40,7 +40,7 @@ router.post("/signup", async (req, res) => {
       hash: SHA256(password + salt).toString(encBase64),
     });
     await newTraveller.save();
-    return res.status(200).json(` Nouveau voyageur créé: ${newTraveller}`);
+    return res.status(200).json(newTraveller);
   } catch (error) {
     return res.status(400).json(error);
   }

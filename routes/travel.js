@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
 
 const uid2 = require("uid2");
 const encBase64 = require("crypto-js/enc-base64");
@@ -32,7 +33,31 @@ router.post("/create", isAuthenticated, async (req, res) => {
       }
     }
     // Intégrer requête API Google dans une boucle pour chaque élément de categories -> renvoyer les activités à proposer aux voyageurs
-    const activities = [];
+    let activities = [];
+    const activitiesPromises = categories.map(async (category) => {
+      const newActivities = await axios.post(
+        // ajouter zipcode en textquery!!!
+        `https://places.googleapis.com/v1/places:searchText?key=${process.env.GOOGLE_API_KEY}`,
+        { textQuery: `${category} ${place}`, minRating: 4 },
+        {
+          headers: {
+            "X-Goog-FieldMask":
+              "places.id,places.displayName,places.primaryType,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours,places.websiteUri",
+          },
+        }
+      );
+      return newActivities.data.places;
+    });
+
+    try {
+      const results = await Promise.all(activitiesPromises);
+      results.forEach((result) => {
+        // vérifier que l'activité n'est pas déjà dans les results en recherchant son google_id (avec un reduce ?) !!!
+        activities = [...activities, ...result];
+      });
+    } catch (error) {
+      console.log("Erreur lors de la récupération des activités:", error);
+    }
 
     // Créer le voyage
     const newTravel = new Travel({

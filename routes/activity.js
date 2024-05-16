@@ -15,26 +15,12 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 // 1. Sélectionner une nouvelle activité (/select)
 router.post("/select", isAuthenticated, async (req, res) => {
   try {
-    const {
-      title,
-      category,
-      city,
-      price,
-      website,
-      opening_hours,
-      picture,
-      rate,
-      address,
-      google_id,
-      travel,
-    } = req.body;
+    const travelFound = await Travel.findById(req.body.travel);
+    const activities = travelFound.activities;
     const status = "selected";
-    // Vérifier que l'activité n'existe pas déjà
-    let activity = "";
-    const activityFound = await Activity.findOne({ google_id });
-    if (!activityFound) {
-      // Créer l'activité si elle n'existe pas
-      const newActivity = new Activity({
+    const tab = req.body.tab;
+    for (let t = 0; t < tab.length; t++) {
+      const {
         title,
         category,
         city,
@@ -45,18 +31,35 @@ router.post("/select", isAuthenticated, async (req, res) => {
         rate,
         address,
         google_id,
-      });
-      await newActivity.save();
-      activity = newActivity._id;
-    } else {
-      activity = activityFound._id;
+      } = tab[t];
+      // Vérifier que l'activité n'existe pas déjà
+      let activity = "";
+      const activityFound = await Activity.findOne({ google_id });
+      if (!activityFound) {
+        // Créer l'activité si elle n'existe pas
+        const newActivity = new Activity({
+          title,
+          category,
+          city,
+          price,
+          website,
+          opening_hours,
+          picture,
+          rate,
+          address,
+          google_id,
+        });
+        await newActivity.save();
+        activity = newActivity._id;
+      } else {
+        activity = activityFound._id;
+      }
+      // vérifier que l'activité n'est pas déjà dans activites avant de pusher !!!
+      activities.push({ activity, status });
     }
     // Ajouter l'activité au voyage avec un statut "selected"
-    const travelFound = await Travel.findById(travel);
-    const activities = travelFound.activities;
-    activities.push({ activity, status });
     const travelUpdated = await Travel.findByIdAndUpdate(
-      travel,
+      req.body.travel,
       { activities },
       { new: true }
     );

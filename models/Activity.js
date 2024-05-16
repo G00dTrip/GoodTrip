@@ -4,7 +4,7 @@ const Activity = mongoose.model("Activity", {
   title: String,
   category: String,
   city: String,
-  price: Number,
+  price: String,
   website: String,
   opening_hours: Array,
   picture: String,
