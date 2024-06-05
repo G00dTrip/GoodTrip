@@ -54,8 +54,19 @@ router.post("/select", isAuthenticated, async (req, res) => {
       } else {
         activity = activityFound._id;
       }
-      // vérifier que l'activité n'est pas déjà dans activites avant de pusher !!!
-      activities.push({ activity, status });
+      // Fonction pour vérifier si l'activité existe déjà dans le tableau
+      function activityExists(activities, newActivity) {
+        return activities.some(
+          (activity) =>
+            JSON.stringify(activity.activity).slice(1, 25) ===
+            JSON.stringify(newActivity._id).slice(1, 25)
+        );
+      }
+      if (!activityExists(activities, activity)) {
+        activities.push({ activity, status });
+      } else {
+        console.log("L'activité existe déjà dans le tableau.");
+      }
     }
     // Ajouter l'activité au voyage avec un statut "selected"
     const travelUpdated = await Travel.findByIdAndUpdate(
