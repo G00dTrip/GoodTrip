@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
-const axios = require("axios");
 
 const uid2 = require("uid2");
 const encBase64 = require("crypto-js/enc-base64");
@@ -54,7 +53,6 @@ router.post("/create", isAuthenticated, async (req, res) => {
     try {
       const results = await Promise.all(activitiesPromises);
       results.forEach((result) => {
-        // vérifier que l'activité n'est pas déjà dans les results en recherchant son google_id (avec un reduce ?) !!!
         activities = [...activities, ...result];
       });
     } catch (error) {
