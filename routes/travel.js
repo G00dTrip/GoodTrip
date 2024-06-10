@@ -10,6 +10,11 @@ const Travel = require("../models/Travel");
 const Traveller = require("../models/Traveller");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
+// // 1. Créer un nouveau voyage (/create)
+// // 2. Récupérer ses voyages (/myTravels)
+// // 3. Récupérer tous les voyages (/travels)
+// // 4. Supprimer un voyage (.delete/travel/:id)
+
 // 1. Créer un nouveau voyage (/create)
 router.post("/create", isAuthenticated, async (req, res) => {
   console.log("Création en cours");
@@ -95,7 +100,21 @@ router.post("/create", isAuthenticated, async (req, res) => {
   }
 });
 
-// 2. Récupérer tous les voyages (/travels)
+// 2. Récupérer ses voyages (/myTravels)
+router.get("/myTravels", isAuthenticated, async (req, res) => {
+  try {
+    // récupérer tous les voyages
+    const myTravels = await Traveller.findById(req.travellerFound._id).populate(
+      { path: `travels` }
+    );
+    return res.status(200).json(myTravels);
+  } catch (error) {
+    console.log("error=", error);
+    return res.status(400).json(error);
+  }
+});
+
+//  3. Récupérer tous les voyages (/travels)
 router.get("/travels", async (req, res) => {
   try {
     const travels = await Travel.find().populate([
@@ -105,6 +124,32 @@ router.get("/travels", async (req, res) => {
     return res.status(200).json(travels);
   } catch (error) {
     return res.status(400).json(error);
+  }
+});
+
+// 4. Supprimer un voyage (.delete/travel)
+router.delete("/travel/:id", isAuthenticated, async (req, res) => {
+  try {
+    const travelId = req.params.id;
+    const result = await Travel.findByIdAndDelete(travelId);
+    if (!result) {
+      return res.status(404).send("Aucun voyage à supprimer");
+    }
+    const newTravels = [];
+    req.travellerFound.travels.map((travel) => {
+      if (JSON.stringify(travel).slice(1, 25) !== travelId) {
+        newTravels.push(travel);
+      }
+    });
+    const traveller = await Traveller.findByIdAndUpdate(
+      req.travellerFound._id,
+      { travels: newTravels },
+      { new: true }
+    );
+    await traveller.save();
+    res.status(200).send(`Le voyage a bien été supprimé`);
+  } catch (error) {
+    res.status(500).send("Un erreur est survenue:", error);
   }
 });
 
