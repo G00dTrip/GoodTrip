@@ -18,6 +18,8 @@ router.post("/select", isAuthenticated, async (req, res) => {
     const travelFound = await Travel.findById(req.body.travel);
     const activities = travelFound.activities;
     const status = "selected";
+    const schedule_day = "";
+    const schedule_duration = 0;
     const tab = req.body.tab;
     for (let t = 0; t < tab.length; t++) {
       const {
@@ -63,7 +65,7 @@ router.post("/select", isAuthenticated, async (req, res) => {
         );
       }
       if (!activityExists(activities, activity)) {
-        activities.push({ activity, status });
+        activities.push({ activity, status, schedule_day, schedule_duration });
       } else {
         console.log("L'activité existe déjà dans le tableau.");
       }
@@ -84,21 +86,14 @@ router.post("/select", isAuthenticated, async (req, res) => {
 // 2. Schedule une nouvelle activité (/schedule)
 router.post("/schedule", isAuthenticated, async (req, res) => {
   try {
-    const { schedule_day, schedule_duration, activity, travel } = req.body;
-    const travelFound = await Travel.findById(travel);
-    const activities = travelFound.activities;
-    // chercher l'activité et mettre à jour son jour et sa durée.
-    for (let a = 0; a < activities.length; a++) {
-      if (JSON.stringify(activities[a].activity).slice(1, 25) === activity) {
-        activities[a].schedule_day = schedule_day;
-        activities[a].schedule_duration = schedule_duration;
-      }
-    }
+    const { activities, travelId } = req.body;
+
     const travelUpdated = await Travel.findByIdAndUpdate(
-      travel,
+      travelId,
       { activities },
       { new: true }
     );
+    // console.log("travelUpdated=", travelUpdated);
     return res.status(200).json(travelUpdated);
   } catch (error) {
     return res.status(400).json(error);
