@@ -15,13 +15,13 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 // 1. Sélectionner une nouvelle activité (/select)
 router.post("/select", isAuthenticated, async (req, res) => {
   try {
-    const travelFound = await Travel.findById(req.body.travel);
+    const { travel, selectedActivities } = req.body;
+    const travelFound = await Travel.findById(travel);
     const activities = travelFound.activities;
     const status = "selected";
     const schedule_day = "";
     const schedule_duration = 0;
-    const tab = req.body.tab;
-    for (let t = 0; t < tab.length; t++) {
+    for (let t = 0; t < selectedActivities.length; t++) {
       const {
         title,
         category,
@@ -33,7 +33,7 @@ router.post("/select", isAuthenticated, async (req, res) => {
         rate,
         address,
         google_id,
-      } = tab[t];
+      } = selectedActivities[t];
       // Vérifier que l'activité n'existe pas déjà
       let activity = "";
       const activityFound = await Activity.findOne({ google_id });
